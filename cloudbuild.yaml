@@ -1,3 +1,6 @@
+options:
+  logging: CLOUD_LOGGING_ONLY
+  
 steps:
   # Step 1: Build the container image using Google Cloud Buildpacks
   # This automatically detects the Java function and packages it.
