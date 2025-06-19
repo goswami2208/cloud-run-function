@@ -1,6 +1,6 @@
 options:
   logging: CLOUD_LOGGING_ONLY
-  
+
 steps:
   # Step 1: Build the container image using Google Cloud Buildpacks
   # This automatically detects the Java function and packages it.
@@ -10,7 +10,7 @@ steps:
       # This is the destination for your container image in Artifact Registry.
       # ${_REGION}-docker.pkg.dev is the standard hostname.
       - '--builder=gcr.io/buildpacks/builder:v1'
-      - '--path=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_SERVICE_NAME}/${_SERVICE_NAME}:$SHORT_SHA'
+      - '--path=${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-solutions/${_SERVICE_NAME}:$SHORT_SHA'
       # This tells the builder the name of your function class.
       - '--env=GOOGLE_FUNCTION_TARGET=com.example.MyFunctionB'
     id: 'Build'
@@ -22,7 +22,7 @@ steps:
       - 'run'
       - 'deploy'
       - '${_SERVICE_NAME}' # The name of your Cloud Run service
-      - '--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_SERVICE_NAME}/${_SERVICE_NAME}:$SHORT_SHA'
+      - '--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-solutions/${_SERVICE_NAME}:$SHORT_SHA'
       - '--region'
       - '${_REGION}'
       - '--allow-unauthenticated' # Or configure your preferred authentication
@@ -37,4 +37,4 @@ substitutions:
 
 # The final image that was built
 images:
-  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_SERVICE_NAME}/${_SERVICE_NAME}:$SHORT_SHA'
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-solutions/${_SERVICE_NAME}:$SHORT_SHA'
