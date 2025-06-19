@@ -32,7 +32,7 @@ steps:
 
 # Define substitution variables that can be set in the trigger
 substitutions:
-  _SERVICE_NAME: 'my-function-B-service' # Change this to your desired service name
+  _SERVICE_NAME: 'my-function-b-service' # Change this to your desired service name
   _REGION: 'us-central1'         # Change this to your desired region
 
 # The final image that was built
