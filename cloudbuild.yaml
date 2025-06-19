@@ -10,6 +10,8 @@ steps:
     # The 'env' section to skip tests can be kept for now to isolate issues.
     # You can remove this 'env' block later to re-enable tests.
     env:
+      - 'GOOGLE_RUNTIME_VERSION=17'
+      - 'GOOGLE_FUNCTION_TARGET=com.example.MyFunction'
       - 'BP_MAVEN_BUILD_ARGUMENTS=clean package -DskipTests=true'
     args:
       - 'build'
