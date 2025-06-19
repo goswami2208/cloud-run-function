@@ -9,7 +9,14 @@ steps:
     - '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-solutions/${_SERVICE_NAME}:$SHORT_SHA'
     - '.' # Build the Dockerfile in the current directory
 
-# Step 2: Deploy the container image to Cloud Run
+# Step 2: ADD THIS NEW STEP TO PUSH THE IMAGE
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    - 'push'
+    - '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-solutions/${_SERVICE_NAME}:${SHORT_SHA}'
+
+
+# Step 3: Deploy the container image to Cloud Run
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: 'gcloud'
   args:
