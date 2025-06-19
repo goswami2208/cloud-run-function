@@ -1,0 +1,37 @@
+steps:
+  # Step 1: Build the container image using Google Cloud Buildpacks
+  # This automatically detects the Java function and packages it.
+  - name: 'gcr.io/k8s-skaffold/pack'
+    args:
+      - 'build'
+      # This is the destination for your container image in Artifact Registry.
+      # ${_REGION}-docker.pkg.dev is the standard hostname.
+      - '--builder=gcr.io/buildpacks/builder:v1'
+      - '--path=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_SERVICE_NAME}/${_SERVICE_NAME}:$SHORT_SHA'
+      # This tells the builder the name of your function class.
+      - '--env=GOOGLE_FUNCTION_TARGET=com.example.MyFunctionB'
+    id: 'Build'
+
+  # Step 2: Deploy the container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE_NAME}' # The name of your Cloud Run service
+      - '--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_SERVICE_NAME}/${_SERVICE_NAME}:$SHORT_SHA'
+      - '--region'
+      - '${_REGION}'
+      - '--allow-unauthenticated' # Or configure your preferred authentication
+      - '--platform'
+      - 'managed'
+    id: 'Deploy'
+
+# Define substitution variables that can be set in the trigger
+substitutions:
+  _SERVICE_NAME: 'my-function-B-service' # Change this to your desired service name
+  _REGION: 'us-central1'         # Change this to your desired region
+
+# The final image that was built
+images:
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_SERVICE_NAME}/${_SERVICE_NAME}:$SHORT_SHA'
