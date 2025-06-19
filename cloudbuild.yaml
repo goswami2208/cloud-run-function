@@ -1,43 +1,28 @@
-# Fully corrected cloudbuild.yaml
-
-options:
-  logging: CLOUD_LOGGING_ONLY
-
 steps:
-  # Step 1: Build the container image using the correct 'pack build' syntax
-  - name: 'gcr.io/k8s-skaffold/pack'
-    id: 'Build'
-    # The 'env' section to skip tests can be kept for now to isolate issues.
-    # You can remove this 'env' block later to re-enable tests.
-    env:
-      - 'BP_JVM_VERSION=21'
-      - 'GOOGLE_FUNCTION_TARGET=com.example.MyFunction'
-      - 'BP_MAVEN_BUILD_ARGUMENTS=clean package -DskipTests=true'
-    args:
-      - 'build'
-      # ARGUMENT 1: The required <image-name>. This must come first.
-      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-solutions/${_SERVICE_NAME}:$SHORT_SHA'
-      # FLAG 1: The builder to use.
-      - '--builder=gcr.io/buildpacks/builder:google-22'
+# Step 1: Build the container image using Docker and push it to Artifact Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    - 'build'
+    - '-t'
+    - '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-solutions/${_SERVICE_NAME}:$SHORT_SHA'
+    - '.' # Build the Dockerfile in the current directory
 
-  # Step 2: Deploy the container image to Cloud Run
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    id: 'Deploy'
-    entrypoint: 'gcloud'
-    args:
-      - 'run'
-      - 'deploy'
-      - '${_SERVICE_NAME}'
-      - '--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-solutions/${_SERVICE_NAME}:$SHORT_SHA'
-      - '--region'
-      - '${_REGION}'
-      - '--allow-unauthenticated'
-      - '--platform'
-      - 'managed'
+# Step 2: Deploy the container image to Cloud Run
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: 'gcloud'
+  args:
+    - 'run'
+    - 'deploy'
+    - '${_SERVICE_NAME}'
+    - '--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-solutions/${_SERVICE_NAME}:$SHORT_SHA'
+    - '--region=${_REGION}'
+    - '--allow-unauthenticated'
+    - '--platform=managed'
 
-substitutions:
-  _SERVICE_NAME: 'my-function-b-service' # Using all lowercase is best practice
-  _REGION: 'us-central1'
-
+# This is where the container image will be stored
 images:
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-solutions/${_SERVICE_NAME}:$SHORT_SHA'
+
+substitutions:
+  _SERVICE_NAME: 'my-function-b'
+  _REGION: 'us-central1'
